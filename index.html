@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesos Gym</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1d1d1f">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, sans-serif;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    padding: 16px;
+    padding-bottom: 40px;
+  }
+  h1 { font-size: 20px; font-weight: 600; margin: 8px 0 16px; }
+  .form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  input {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d1d6;
+    font-size: 16px;
+  }
+  .row { display: flex; gap: 8px; }
+  .row input { flex: 1; }
+  button {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #1d1d1f;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  button:active { opacity: 0.8; }
+  .error { color: #d70015; font-size: 13px; display: none; }
+  .empty { text-align: center; color: #86868b; padding: 40px 0; font-size: 14px; }
+  .entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .entry-name { font-weight: 500; font-size: 15px; }
+  .entry-detail { font-size: 13px; color: #86868b; }
+  .del {
+    background: none;
+    border: none;
+    color: #86868b;
+    font-size: 20px;
+    padding: 4px 8px;
+  }
+</style>
+</head>
+<body>
+  <h1>Registro de pesos</h1>
+  <div class="form">
+    <input id="exercise" type="text" placeholder="Ejercicio (ej. Press banca)">
+    <div class="row">
+      <input id="weight" type="number" step="0.5" placeholder="Peso (kg)">
+      <input id="reps" type="number" step="1" placeholder="Reps">
+    </div>
+    <div id="error" class="error"></div>
+    <button id="addBtn">Añadir registro</button>
+  </div>
+  <div id="empty" class="empty">Aún no hay registros.</div>
+  <div id="list"></div>
+
+<script>
+  const exerciseEl = document.getElementById('exercise');
+  const weightEl = document.getElementById('weight');
+  const repsEl = document.getElementById('reps');
+  const errorEl = document.getElementById('error');
+  const listEl = document.getElementById('list');
+  const emptyEl = document.getElementById('empty');
+
+  let entries = JSON.parse(localStorage.getItem('gym-entries') || '[]');
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+  }
+
+  function render() {
+    listEl.innerHTML = '';
+    if (entries.length === 0) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    const sorted = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
+    for (const e of sorted) {
+      const div = document.createElement('div');
+      div.className = 'entry';
+      div.innerHTML = `
+        <div>
+          <div class="entry-name">${e.exercise}</div>
+          <div class="entry-detail">${e.weight} kg x ${e.reps} reps · ${formatDate(e.date)}</div>
+        </div>
+        <button class="del" data-id="${e.id}">&times;</button>
+      `;
+      listEl.appendChild(div);
+    }
+    listEl.querySelectorAll('.del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        entries = entries.filter(e => e.id !== btn.dataset.id);
+        save();
+        render();
+      });
+    });
+  }
+
+  function save() {
+    localStorage.setItem('gym-entries', JSON.stringify(entries));
+  }
+
+  document.getElementById('addBtn').addEventListener('click', () => {
+    errorEl.style.display = 'none';
+    const exercise = exerciseEl.value.trim();
+    const weight = parseFloat(weightEl.value);
+    const reps = parseInt(repsEl.value, 10);
+
+    if (!exercise) { errorEl.textContent = 'Escribe el nombre del ejercicio.'; errorEl.style.display = 'block'; return; }
+    if (isNaN(weight) || weight <= 0) { errorEl.textContent = 'Introduce un peso válido.'; errorEl.style.display = 'block'; return; }
+    if (isNaN(reps) || reps <= 0) { errorEl.textContent = 'Introduce las repeticiones.'; errorEl.style.display = 'block'; return; }
+
+    entries.push({
+      id: Date.now().toString(),
+      exercise, weight: Math.round(weight * 10) / 10, reps,
+      date: new Date().toISOString()
+    });
+    exerciseEl.value = ''; weightEl.value = ''; repsEl.value = '';
+    save();
+    render();
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+
+  render();
+</script>
+</body>
+</html>
