@@ -7,25 +7,32 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1d1d1f">
 <style>
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     margin: 0;
     font-family: -apple-system, sans-serif;
     background: #f5f5f7;
     color: #1d1d1f;
     padding: 16px;
-    padding-bottom: 40px;
+    padding-bottom: 90px;
   }
   h1 { font-size: 20px; font-weight: 600; margin: 8px 0 16px; }
+  h2 { font-size: 16px; font-weight: 600; margin: 0 0 10px; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
   .form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-  input {
+  input, select {
     padding: 12px;
     border-radius: 10px;
     border: 1px solid #d1d1d6;
     font-size: 16px;
+    background: white;
+    width: 100%;
   }
   .row { display: flex; gap: 8px; }
-  .row input { flex: 1; }
+  .row input, .row select { flex: 1; }
   button {
     padding: 12px;
     border-radius: 10px;
@@ -36,8 +43,10 @@
     font-weight: 500;
   }
   button:active { opacity: 0.8; }
+  button.secondary { background: #e5e5ea; color: #1d1d1f; }
   .error { color: #d70015; font-size: 13px; display: none; }
   .empty { text-align: center; color: #86868b; padding: 40px 0; font-size: 14px; }
+
   .entry {
     display: flex;
     justify-content: space-between;
@@ -56,23 +65,220 @@
     font-size: 20px;
     padding: 4px 8px;
   }
+
+  /* Tab bar */
+  .tabbar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    background: white;
+    border-top: 1px solid #e5e5ea;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  }
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #86868b;
+    font-size: 11px;
+    padding: 6px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .tab-btn.active { color: #1d1d1f; font-weight: 600; }
+  .tab-icon { font-size: 19px; }
+
+  /* Progreso */
+  .pr-card {
+    background: #1d1d1f;
+    color: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .pr-value { font-size: 32px; font-weight: 700; }
+  .pr-label { font-size: 13px; color: #a1a1a6; margin-top: 2px; }
+  .chart-box {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  /* Descanso */
+  .timer-display {
+    text-align: center;
+    font-size: 64px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin: 24px 0;
+  }
+  .preset-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .preset-row button { flex: 1; }
+  .timer-controls { display: flex; gap: 8px; }
+  .timer-controls button { flex: 1; }
+
+  /* Historial / Calendario */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .cal-header button {
+    background: none;
+    color: #1d1d1f;
+    font-size: 20px;
+    padding: 4px 12px;
+  }
+  .cal-title { font-size: 16px; font-weight: 600; text-transform: capitalize; }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+  .cal-dow {
+    text-align: center;
+    font-size: 11px;
+    color: #86868b;
+    padding-bottom: 4px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 13px;
+    background: white;
+    position: relative;
+    color: #1d1d1f;
+  }
+  .cal-day.empty-cell { background: transparent; }
+  .cal-day.has-workout { background: #1d1d1f; color: white; font-weight: 600; }
+  .cal-day.selected { outline: 2px solid #e63946; outline-offset: 1px; }
+  .cal-day.today { box-shadow: inset 0 0 0 2px #2f7cf6; }
+  .day-detail-title { font-size: 14px; color: #86868b; margin-bottom: 8px; }
 </style>
 </head>
 <body>
-  <h1>Registro de pesos</h1>
-  <div class="form">
-    <input id="exercise" type="text" placeholder="Ejercicio (ej. Press banca)">
-    <div class="row">
-      <input id="weight" type="number" step="0.5" placeholder="Peso (kg)">
-      <input id="reps" type="number" step="1" placeholder="Reps">
+
+  <h1>Pesos Gym</h1>
+
+  <!-- ============ REGISTRO ============ -->
+  <div id="tab-registro" class="tab-content active">
+    <div class="form">
+      <input id="exercise" type="text" placeholder="Ejercicio (ej. Press banca)">
+      <div class="row">
+        <input id="weight" type="number" step="0.5" placeholder="Peso (kg)">
+        <input id="reps" type="number" step="1" placeholder="Reps">
+      </div>
+      <div id="error" class="error"></div>
+      <button id="addBtn">Añadir registro</button>
     </div>
-    <div id="error" class="error"></div>
-    <button id="addBtn">Añadir registro</button>
+    <div id="empty" class="empty">Aún no hay registros.</div>
+    <div id="list"></div>
   </div>
-  <div id="empty" class="empty">Aún no hay registros.</div>
-  <div id="list"></div>
+
+  <!-- ============ PROGRESO ============ -->
+  <div id="tab-progreso" class="tab-content">
+    <div class="form">
+      <select id="exerciseSelect"></select>
+    </div>
+    <div id="progresoEmpty" class="empty">Registra al menos 2 entradas del mismo ejercicio para ver el progreso.</div>
+    <div id="progresoContent" style="display:none;">
+      <div class="pr-card">
+        <div id="prValue" class="pr-value">-</div>
+        <div class="pr-label">Peso máximo levantado</div>
+      </div>
+      <div class="chart-box">
+        <h2>Evolución del peso</h2>
+        <svg id="chart" viewBox="0 0 320 160" style="width:100%; height:auto;"></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HISTORIAL ============ -->
+  <div id="tab-historial" class="tab-content">
+    <div class="cal-header">
+      <button id="calPrev">&#8249;</button>
+      <div id="calTitle" class="cal-title">-</div>
+      <button id="calNext">&#8250;</button>
+    </div>
+    <div id="calGrid" class="cal-grid"></div>
+    <div id="dayDetail">
+      <div class="empty">Toca un día marcado para ver qué entrenaste.</div>
+    </div>
+  </div>
+
+  <!-- ============ DESCANSO ============ -->
+  <div id="tab-descanso" class="tab-content">
+    <h2>Cronómetro de descanso</h2>
+    <div class="preset-row">
+      <button class="secondary" data-secs="60">60s</button>
+      <button class="secondary" data-secs="90">90s</button>
+      <button class="secondary" data-secs="120">120s</button>
+      <button class="secondary" data-secs="180">180s</button>
+    </div>
+    <div id="timerDisplay" class="timer-display">01:30</div>
+    <div class="timer-controls">
+      <button id="timerStart">Iniciar</button>
+      <button id="timerReset" class="secondary">Reiniciar</button>
+    </div>
+  </div>
+
+  <!-- ============ TAB BAR ============ -->
+  <div class="tabbar">
+    <button class="tab-btn active" data-tab="registro">
+      <span class="tab-icon">📋</span>Registro
+    </button>
+    <button class="tab-btn" data-tab="progreso">
+      <span class="tab-icon">📈</span>Progreso
+    </button>
+    <button class="tab-btn" data-tab="historial">
+      <span class="tab-icon">🗓️</span>Historial
+    </button>
+    <button class="tab-btn" data-tab="descanso">
+      <span class="tab-icon">⏱️</span>Descanso
+    </button>
+  </div>
 
 <script>
+  /* ============ DATOS COMPARTIDOS ============ */
+  let entries = JSON.parse(localStorage.getItem('gym-entries') || '[]');
+
+  function save() {
+    localStorage.setItem('gym-entries', JSON.stringify(entries));
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+  }
+
+  function dateKey(iso) {
+    const d = new Date(iso);
+    return d.getFullYear() + '-' + (d.getMonth() + 1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0');
+  }
+
+  /* ============ TABS ============ */
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'progreso') renderProgreso();
+      if (btn.dataset.tab === 'historial') renderCalendar();
+    });
+  });
+
+  /* ============ REGISTRO ============ */
   const exerciseEl = document.getElementById('exercise');
   const weightEl = document.getElementById('weight');
   const repsEl = document.getElementById('reps');
@@ -80,14 +286,7 @@
   const listEl = document.getElementById('list');
   const emptyEl = document.getElementById('empty');
 
-  let entries = JSON.parse(localStorage.getItem('gym-entries') || '[]');
-
-  function formatDate(iso) {
-    const d = new Date(iso);
-    return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-  }
-
-  function render() {
+  function renderList() {
     listEl.innerHTML = '';
     if (entries.length === 0) {
       emptyEl.style.display = 'block';
@@ -111,13 +310,9 @@
       btn.addEventListener('click', () => {
         entries = entries.filter(e => e.id !== btn.dataset.id);
         save();
-        render();
+        renderList();
       });
     });
-  }
-
-  function save() {
-    localStorage.setItem('gym-entries', JSON.stringify(entries));
   }
 
   document.getElementById('addBtn').addEventListener('click', () => {
@@ -137,14 +332,257 @@
     });
     exerciseEl.value = ''; weightEl.value = ''; repsEl.value = '';
     save();
-    render();
+    renderList();
   });
 
+  /* ============ PROGRESO ============ */
+  const exerciseSelect = document.getElementById('exerciseSelect');
+  const progresoEmpty = document.getElementById('progresoEmpty');
+  const progresoContent = document.getElementById('progresoContent');
+  const prValueEl = document.getElementById('prValue');
+  const chartEl = document.getElementById('chart');
+
+  function getUniqueExercises() {
+    const names = [...new Set(entries.map(e => e.exercise))];
+    return names.sort((a, b) => a.localeCompare(b));
+  }
+
+  function populateExerciseSelect() {
+    const names = getUniqueExercises();
+    const current = exerciseSelect.value;
+    exerciseSelect.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
+    if (names.includes(current)) exerciseSelect.value = current;
+  }
+
+  exerciseSelect.addEventListener('change', renderProgreso);
+
+  function renderProgreso() {
+    populateExerciseSelect();
+    const names = getUniqueExercises();
+    if (names.length === 0) {
+      progresoEmpty.style.display = 'block';
+      progresoContent.style.display = 'none';
+      return;
+    }
+    const selected = exerciseSelect.value || names[0];
+    const data = entries
+      .filter(e => e.exercise === selected)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (data.length < 2) {
+      progresoEmpty.style.display = 'block';
+      progresoContent.style.display = 'none';
+      return;
+    }
+    progresoEmpty.style.display = 'none';
+    progresoContent.style.display = 'block';
+
+    const maxWeight = Math.max(...data.map(d => d.weight));
+    prValueEl.textContent = maxWeight + ' kg';
+
+    drawChart(data);
+  }
+
+  function drawChart(data) {
+    const w = 320, h = 160, padding = 24;
+    const weights = data.map(d => d.weight);
+    const minW = Math.min(...weights);
+    const maxW = Math.max(...weights);
+    const range = maxW - minW || 1;
+
+    const points = data.map((d, i) => {
+      const x = padding + (i / (data.length - 1)) * (w - padding * 2);
+      const y = h - padding - ((d.weight - minW) / range) * (h - padding * 2);
+      return { x, y, weight: d.weight };
+    });
+
+    let svg = `<polyline points="${points.map(p => p.x + ',' + p.y).join(' ')}" fill="none" stroke="#1d1d1f" stroke-width="2.5"/>`;
+    points.forEach((p) => {
+      svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="${p.weight === maxW ? '#e63946' : '#1d1d1f'}"/>`;
+    });
+    chartEl.innerHTML = svg;
+  }
+
+  /* ============ HISTORIAL / CALENDARIO ============ */
+  const calTitle = document.getElementById('calTitle');
+  const calGrid = document.getElementById('calGrid');
+  const dayDetail = document.getElementById('dayDetail');
+  const calPrev = document.getElementById('calPrev');
+  const calNext = document.getElementById('calNext');
+
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth(); // 0-11
+  let selectedDayKey = null;
+
+  const DOW = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  calPrev.addEventListener('click', () => {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    selectedDayKey = null;
+    renderCalendar();
+  });
+  calNext.addEventListener('click', () => {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    selectedDayKey = null;
+    renderCalendar();
+  });
+
+  function renderCalendar() {
+    calTitle.textContent = MONTHS[calMonth] + ' ' + calYear;
+
+    // días con entrenamiento -> mapa de fecha a lista de entries
+    const byDay = {};
+    entries.forEach(e => {
+      const key = dateKey(e.date);
+      if (!byDay[key]) byDay[key] = [];
+      byDay[key].push(e);
+    });
+
+    calGrid.innerHTML = '';
+    DOW.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-dow';
+      el.textContent = d;
+      calGrid.appendChild(el);
+    });
+
+    const firstOfMonth = new Date(calYear, calMonth, 1);
+    // getDay: 0=domingo..6=sábado -> convertimos para que la semana empiece en lunes
+    let startOffset = firstOfMonth.getDay() - 1;
+    if (startOffset < 0) startOffset = 6;
+
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const todayKey = dateKey(new Date().toISOString());
+
+    for (let i = 0; i < startOffset; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day empty-cell';
+      calGrid.appendChild(el);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const key = calYear + '-' + (calMonth + 1).toString().padStart(2, '0') + '-' + day.toString().padStart(2, '0');
+      const el = document.createElement('div');
+      el.className = 'cal-day';
+      if (byDay[key]) el.classList.add('has-workout');
+      if (key === todayKey) el.classList.add('today');
+      if (key === selectedDayKey) el.classList.add('selected');
+      el.textContent = day;
+      el.addEventListener('click', () => {
+        if (!byDay[key]) return;
+        selectedDayKey = key;
+        renderCalendar();
+        renderDayDetail(key, byDay[key]);
+      });
+      calGrid.appendChild(el);
+    }
+
+    if (selectedDayKey && byDay[selectedDayKey]) {
+      renderDayDetail(selectedDayKey, byDay[selectedDayKey]);
+    } else {
+      dayDetail.innerHTML = '<div class="empty">Toca un día marcado para ver qué entrenaste.</div>';
+    }
+  }
+
+  function renderDayDetail(key, dayEntries) {
+    const [y, m, d] = key.split('-');
+    const niceDate = new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    let html = `<div class="day-detail-title">${niceDate}</div>`;
+    dayEntries.forEach(e => {
+      html += `
+        <div class="entry">
+          <div>
+            <div class="entry-name">${e.exercise}</div>
+            <div class="entry-detail">${e.weight} kg x ${e.reps} reps</div>
+          </div>
+        </div>
+      `;
+    });
+    dayDetail.innerHTML = html;
+  }
+
+  /* ============ DESCANSO ============ */
+  const timerDisplay = document.getElementById('timerDisplay');
+  const timerStart = document.getElementById('timerStart');
+  const timerReset = document.getElementById('timerReset');
+  const presetBtns = document.querySelectorAll('.preset-row button');
+
+  let totalSeconds = 90;
+  let remaining = totalSeconds;
+  let timerInterval = null;
+  let running = false;
+
+  function updateDisplay() {
+    const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+    const s = (remaining % 60).toString().padStart(2, '0');
+    timerDisplay.textContent = m + ':' + s;
+  }
+
+  function playBeep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.4);
+    } catch (e) {}
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  }
+
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      totalSeconds = parseInt(btn.dataset.secs, 10);
+      remaining = totalSeconds;
+      clearInterval(timerInterval);
+      running = false;
+      timerStart.textContent = 'Iniciar';
+      updateDisplay();
+    });
+  });
+
+  timerStart.addEventListener('click', () => {
+    if (running) {
+      clearInterval(timerInterval);
+      running = false;
+      timerStart.textContent = 'Iniciar';
+      return;
+    }
+    running = true;
+    timerStart.textContent = 'Pausar';
+    timerInterval = setInterval(() => {
+      remaining--;
+      updateDisplay();
+      if (remaining <= 0) {
+        clearInterval(timerInterval);
+        running = false;
+        timerStart.textContent = 'Iniciar';
+        playBeep();
+      }
+    }, 1000);
+  });
+
+  timerReset.addEventListener('click', () => {
+    clearInterval(timerInterval);
+    running = false;
+    remaining = totalSeconds;
+    timerStart.textContent = 'Iniciar';
+    updateDisplay();
+  });
+
+  updateDisplay();
+
+  /* ============ INIT ============ */
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js');
   }
-
-  render();
+  renderList();
 </script>
 </body>
 </html>
