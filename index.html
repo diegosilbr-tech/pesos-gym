@@ -66,6 +66,27 @@
     padding: 4px 8px;
   }
 
+  /* Grupos musculares (chips) */
+  .muscle-box {
+    display: none;
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #d1d1d6;
+  }
+  .muscle-box.visible { display: block; }
+  .muscle-box-label { font-size: 12px; color: #86868b; margin-bottom: 8px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #e5e5ea;
+    color: #1d1d1f;
+    font-size: 13px;
+    border: none;
+  }
+  .chip.selected { background: #1d1d1f; color: white; }
+
   /* Tab bar */
   .tabbar {
     position: fixed;
@@ -105,7 +126,33 @@
     background: white;
     border-radius: 12px;
     padding: 12px;
+    margin-bottom: 20px;
   }
+
+  /* Volumen semanal */
+  .week-box {
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
+  }
+  .week-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .week-row:last-child { margin-bottom: 0; }
+  .week-label { width: 76px; font-size: 13px; flex-shrink: 0; }
+  .week-bar-track {
+    flex: 1;
+    background: #e5e5ea;
+    border-radius: 6px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .week-bar-fill { background: #2f7cf6; height: 100%; border-radius: 6px; }
+  .week-count { width: 70px; font-size: 12px; color: #86868b; text-align: right; flex-shrink: 0; }
 
   /* Descanso */
   .timer-display {
@@ -172,7 +219,14 @@
   <!-- ============ REGISTRO ============ -->
   <div id="tab-registro" class="tab-content active">
     <div class="form">
-      <input id="exercise" type="text" placeholder="Ejercicio (ej. Press banca)">
+      <input id="exercise" type="text" placeholder="Ejercicio (ej. Press banca)" list="exerciseList" autocomplete="off">
+      <datalist id="exerciseList"></datalist>
+
+      <div id="muscleBox" class="muscle-box">
+        <div class="muscle-box-label">Ejercicio nuevo — ¿a qué grupo(s) contribuye?</div>
+        <div id="chipRow" class="chip-row"></div>
+      </div>
+
       <div class="row">
         <input id="weight" type="number" step="0.5" placeholder="Peso (kg)">
         <input id="reps" type="number" step="1" placeholder="Reps">
@@ -186,6 +240,9 @@
 
   <!-- ============ PROGRESO ============ -->
   <div id="tab-progreso" class="tab-content">
+    <h2>Volumen semanal por grupo muscular</h2>
+    <div id="weekBox" class="week-box"></div>
+
     <div class="form">
       <select id="exerciseSelect"></select>
     </div>
@@ -250,9 +307,17 @@
 <script>
   /* ============ DATOS COMPARTIDOS ============ */
   let entries = JSON.parse(localStorage.getItem('gym-entries') || '[]');
+  // catálogo de ejercicios -> grupos musculares a los que contribuye
+  // ej: { "Press banca": ["Pecho", "Tríceps"] }
+  let exerciseCatalog = JSON.parse(localStorage.getItem('gym-exercise-catalog') || '{}');
 
-  function save() {
+  const MUSCLE_GROUPS = ['Pecho', 'Espalda', 'Piernas', 'Hombro', 'Bíceps', 'Tríceps', 'Core', 'Glúteo'];
+
+  function saveEntries() {
     localStorage.setItem('gym-entries', JSON.stringify(entries));
+  }
+  function saveCatalog() {
+    localStorage.setItem('gym-exercise-catalog', JSON.stringify(exerciseCatalog));
   }
 
   function formatDate(iso) {
@@ -273,7 +338,7 @@
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-      if (btn.dataset.tab === 'progreso') renderProgreso();
+      if (btn.dataset.tab === 'progreso') { renderWeekSummary(); renderProgreso(); }
       if (btn.dataset.tab === 'historial') renderCalendar();
     });
   });
@@ -285,6 +350,46 @@
   const errorEl = document.getElementById('error');
   const listEl = document.getElementById('list');
   const emptyEl = document.getElementById('empty');
+  const exerciseListEl = document.getElementById('exerciseList');
+  const muscleBox = document.getElementById('muscleBox');
+  const chipRow = document.getElementById('chipRow');
+
+  let selectedGroups = [];
+
+  function refreshDatalist() {
+    exerciseListEl.innerHTML = Object.keys(exerciseCatalog)
+      .sort((a, b) => a.localeCompare(b))
+      .map(name => `<option value="${name}">`).join('');
+  }
+
+  function renderChips() {
+    chipRow.innerHTML = MUSCLE_GROUPS.map(g =>
+      `<button type="button" class="chip${selectedGroups.includes(g) ? ' selected' : ''}" data-group="${g}">${g}</button>`
+    ).join('');
+    chipRow.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const g = chip.dataset.group;
+        if (selectedGroups.includes(g)) {
+          selectedGroups = selectedGroups.filter(x => x !== g);
+        } else {
+          selectedGroups.push(g);
+        }
+        renderChips();
+      });
+    });
+  }
+  renderChips();
+
+  function checkExerciseInput() {
+    const name = exerciseEl.value.trim();
+    if (name && !exerciseCatalog[name]) {
+      muscleBox.classList.add('visible');
+    } else {
+      muscleBox.classList.remove('visible');
+    }
+  }
+  exerciseEl.addEventListener('input', checkExerciseInput);
+  exerciseEl.addEventListener('change', checkExerciseInput);
 
   function renderList() {
     listEl.innerHTML = '';
@@ -309,7 +414,7 @@
     listEl.querySelectorAll('.del').forEach(btn => {
       btn.addEventListener('click', () => {
         entries = entries.filter(e => e.id !== btn.dataset.id);
-        save();
+        saveEntries();
         renderList();
       });
     });
@@ -320,10 +425,22 @@
     const exercise = exerciseEl.value.trim();
     const weight = parseFloat(weightEl.value);
     const reps = parseInt(repsEl.value, 10);
+    const isNewExercise = exercise && !exerciseCatalog[exercise];
 
     if (!exercise) { errorEl.textContent = 'Escribe el nombre del ejercicio.'; errorEl.style.display = 'block'; return; }
     if (isNaN(weight) || weight <= 0) { errorEl.textContent = 'Introduce un peso válido.'; errorEl.style.display = 'block'; return; }
     if (isNaN(reps) || reps <= 0) { errorEl.textContent = 'Introduce las repeticiones.'; errorEl.style.display = 'block'; return; }
+    if (isNewExercise && selectedGroups.length === 0) {
+      errorEl.textContent = 'Marca al menos un grupo muscular para este ejercicio nuevo.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if (isNewExercise) {
+      exerciseCatalog[exercise] = [...selectedGroups];
+      saveCatalog();
+      refreshDatalist();
+    }
 
     entries.push({
       id: Date.now().toString(),
@@ -331,11 +448,14 @@
       date: new Date().toISOString()
     });
     exerciseEl.value = ''; weightEl.value = ''; repsEl.value = '';
-    save();
+    selectedGroups = [];
+    renderChips();
+    muscleBox.classList.remove('visible');
+    saveEntries();
     renderList();
   });
 
-  /* ============ PROGRESO ============ */
+  /* ============ PROGRESO: PR + gráfica por ejercicio ============ */
   const exerciseSelect = document.getElementById('exerciseSelect');
   const progresoEmpty = document.getElementById('progresoEmpty');
   const progresoContent = document.getElementById('progresoContent');
@@ -403,6 +523,60 @@
     chartEl.innerHTML = svg;
   }
 
+  /* ============ PROGRESO: Volumen semanal por grupo muscular ============ */
+  const weekBox = document.getElementById('weekBox');
+
+  function getMondayOfWeek(date) {
+    const d = new Date(date);
+    const day = d.getDay(); // 0=domingo..6=sábado
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function renderWeekSummary() {
+    const monday = getMondayOfWeek(new Date());
+    const nextMonday = new Date(monday);
+    nextMonday.setDate(monday.getDate() + 7);
+
+    const weekEntries = entries.filter(e => {
+      const d = new Date(e.date);
+      return d >= monday && d < nextMonday;
+    });
+
+    // sets y reps por grupo muscular
+    const stats = {};
+    MUSCLE_GROUPS.forEach(g => { stats[g] = { sets: 0, reps: 0 }; });
+
+    weekEntries.forEach(e => {
+      const groups = exerciseCatalog[e.exercise] || [];
+      groups.forEach(g => {
+        if (!stats[g]) stats[g] = { sets: 0, reps: 0 };
+        stats[g].sets += 1;
+        stats[g].reps += e.reps;
+      });
+    });
+
+    const maxSets = Math.max(1, ...Object.values(stats).map(s => s.sets));
+    const activeGroups = MUSCLE_GROUPS.filter(g => stats[g].sets > 0);
+
+    if (activeGroups.length === 0) {
+      weekBox.innerHTML = '<div class="empty" style="padding:16px 0;">Aún no hay series esta semana.</div>';
+      return;
+    }
+
+    weekBox.innerHTML = activeGroups
+      .sort((a, b) => stats[b].sets - stats[a].sets)
+      .map(g => `
+        <div class="week-row">
+          <div class="week-label">${g}</div>
+          <div class="week-bar-track"><div class="week-bar-fill" style="width:${(stats[g].sets / maxSets) * 100}%;"></div></div>
+          <div class="week-count">${stats[g].sets} series</div>
+        </div>
+      `).join('');
+  }
+
   /* ============ HISTORIAL / CALENDARIO ============ */
   const calTitle = document.getElementById('calTitle');
   const calGrid = document.getElementById('calGrid');
@@ -411,7 +585,7 @@
   const calNext = document.getElementById('calNext');
 
   let calYear = new Date().getFullYear();
-  let calMonth = new Date().getMonth(); // 0-11
+  let calMonth = new Date().getMonth();
   let selectedDayKey = null;
 
   const DOW = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -433,7 +607,6 @@
   function renderCalendar() {
     calTitle.textContent = MONTHS[calMonth] + ' ' + calYear;
 
-    // días con entrenamiento -> mapa de fecha a lista de entries
     const byDay = {};
     entries.forEach(e => {
       const key = dateKey(e.date);
@@ -450,7 +623,6 @@
     });
 
     const firstOfMonth = new Date(calYear, calMonth, 1);
-    // getDay: 0=domingo..6=sábado -> convertimos para que la semana empiece en lunes
     let startOffset = firstOfMonth.getDay() - 1;
     if (startOffset < 0) startOffset = 6;
 
@@ -515,7 +687,7 @@
   let timerInterval = null;
   let running = false;
 
-  function updateDisplay() {
+  function updateTimerDisplay() {
     const m = Math.floor(remaining / 60).toString().padStart(2, '0');
     const s = (remaining % 60).toString().padStart(2, '0');
     timerDisplay.textContent = m + ':' + s;
@@ -543,7 +715,7 @@
       clearInterval(timerInterval);
       running = false;
       timerStart.textContent = 'Iniciar';
-      updateDisplay();
+      updateTimerDisplay();
     });
   });
 
@@ -558,7 +730,7 @@
     timerStart.textContent = 'Pausar';
     timerInterval = setInterval(() => {
       remaining--;
-      updateDisplay();
+      updateTimerDisplay();
       if (remaining <= 0) {
         clearInterval(timerInterval);
         running = false;
@@ -573,15 +745,16 @@
     running = false;
     remaining = totalSeconds;
     timerStart.textContent = 'Iniciar';
-    updateDisplay();
+    updateTimerDisplay();
   });
 
-  updateDisplay();
+  updateTimerDisplay();
 
   /* ============ INIT ============ */
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js');
   }
+  refreshDatalist();
   renderList();
 </script>
 </body>
