@@ -18,11 +18,13 @@
   }
   h1 { font-size: 20px; font-weight: 600; margin: 8px 0 16px; }
   h2 { font-size: 16px; font-weight: 600; margin: 0 0 10px; }
+  h3 { font-size: 12px; font-weight: 600; color: #86868b; text-transform: uppercase; letter-spacing: 0.03em; margin: 18px 0 8px; }
+  h3:first-child { margin-top: 0; }
 
   .tab-content { display: none; }
   .tab-content.active { display: block; }
 
-  .form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
   input, select {
     padding: 12px;
     border-radius: 10px;
@@ -47,45 +49,79 @@
   .error { color: #d70015; font-size: 13px; display: none; }
   .empty { text-align: center; color: #86868b; padding: 40px 0; font-size: 14px; }
 
-  .entry {
+  /* Chips */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #e5e5ea;
+    color: #1d1d1f;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 6px;
+  }
+  .chip.selected { background: #1d1d1f; color: white; }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .chip-new { background: white; border: 1.5px dashed #c7c7cc; color: #86868b; }
+
+  .section-card {
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+
+  /* Selected exercise banner */
+  .selected-exercise {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1d1d1f;
+    color: white;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .selected-exercise-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .selected-exercise button { background: none; color: #a1a1a6; padding: 4px; font-size: 13px; }
+
+  /* Log list grouped */
+  .date-group { margin-bottom: 4px; }
+  .exercise-card {
     background: white;
     border-radius: 10px;
     padding: 12px 14px;
     margin-bottom: 8px;
   }
-  .entry-name { font-weight: 500; font-size: 15px; }
-  .entry-detail { font-size: 13px; color: #86868b; }
-  .del {
-    background: none;
-    border: none;
-    color: #86868b;
-    font-size: 20px;
-    padding: 4px 8px;
+  .exercise-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
   }
-
-  /* Grupos musculares (chips) */
-  .muscle-box {
-    display: none;
-    background: white;
-    border-radius: 10px;
-    padding: 10px;
-    border: 1px solid #d1d1d6;
-  }
-  .muscle-box.visible { display: block; }
-  .muscle-box-label { font-size: 12px; color: #86868b; margin-bottom: 8px; }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip {
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: #e5e5ea;
-    color: #1d1d1f;
+  .exercise-card-header .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .set-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .set-chip {
+    background: #f5f5f7;
+    border-radius: 8px;
+    padding: 6px 10px;
     font-size: 13px;
-    border: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-  .chip.selected { background: #1d1d1f; color: white; }
+  .set-chip button {
+    background: none;
+    color: #c7c7cc;
+    padding: 0;
+    font-size: 15px;
+    line-height: 1;
+  }
 
   /* Tab bar */
   .tabbar {
@@ -136,23 +172,24 @@
     padding: 14px;
     margin-bottom: 20px;
   }
-  .week-row {
+  .week-row { margin-bottom: 14px; }
+  .week-row:last-child { margin-bottom: 0; }
+  .week-top-line {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    justify-content: space-between;
+    margin-bottom: 5px;
   }
-  .week-row:last-child { margin-bottom: 0; }
-  .week-label { width: 76px; font-size: 13px; flex-shrink: 0; }
+  .week-label { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+  .week-label .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .week-nums { font-size: 12px; color: #86868b; }
   .week-bar-track {
-    flex: 1;
     background: #e5e5ea;
     border-radius: 6px;
-    height: 14px;
+    height: 10px;
     overflow: hidden;
   }
-  .week-bar-fill { background: #2f7cf6; height: 100%; border-radius: 6px; }
-  .week-count { width: 70px; font-size: 12px; color: #86868b; text-align: right; flex-shrink: 0; }
+  .week-bar-fill { height: 100%; border-radius: 6px; }
 
   /* Descanso */
   .timer-display {
@@ -218,22 +255,40 @@
 
   <!-- ============ REGISTRO ============ -->
   <div id="tab-registro" class="tab-content active">
-    <div class="form">
-      <input id="exercise" type="text" placeholder="Ejercicio (ej. Press banca)" list="exerciseList" autocomplete="off">
-      <datalist id="exerciseList"></datalist>
 
-      <div id="muscleBox" class="muscle-box">
-        <div class="muscle-box-label">Ejercicio nuevo — ¿a qué grupo(s) contribuye?</div>
-        <div id="chipRow" class="chip-row"></div>
+    <h3>Grupo muscular</h3>
+    <div class="section-card">
+      <div id="groupFilterChips" class="chip-row"></div>
+    </div>
+
+    <div id="exercisePickerSection">
+      <h3>Ejercicio</h3>
+      <div class="section-card">
+        <div id="exerciseChips" class="chip-row"></div>
       </div>
+    </div>
 
+    <div id="newExerciseForm" class="section-card" style="display:none;">
+      <div class="form" style="margin-bottom:0;">
+        <input id="newExerciseName" type="text" placeholder="Nombre del ejercicio nuevo">
+        <div style="font-size:12px; color:#86868b; margin-top:2px;">Grupo(s) al que contribuye:</div>
+        <div id="newExerciseChips" class="chip-row"></div>
+        <button id="confirmNewExercise" class="secondary" style="margin-top:6px;">Usar este ejercicio</button>
+      </div>
+    </div>
+
+    <div id="selectedExerciseBanner" style="display:none;"></div>
+
+    <div id="logForm" class="form" style="display:none;">
       <div class="row">
         <input id="weight" type="number" step="0.5" placeholder="Peso (kg)">
         <input id="reps" type="number" step="1" placeholder="Reps">
       </div>
       <div id="error" class="error"></div>
-      <button id="addBtn">Añadir registro</button>
+      <button id="addBtn">Añadir serie</button>
     </div>
+
+    <h3>Historial reciente</h3>
     <div id="empty" class="empty">Aún no hay registros.</div>
     <div id="list"></div>
   </div>
@@ -307,27 +362,47 @@
 <script>
   /* ============ DATOS COMPARTIDOS ============ */
   let entries = JSON.parse(localStorage.getItem('gym-entries') || '[]');
-  // catálogo de ejercicios -> grupos musculares a los que contribuye
-  // ej: { "Press banca": ["Pecho", "Tríceps"] }
   let exerciseCatalog = JSON.parse(localStorage.getItem('gym-exercise-catalog') || '{}');
 
   const MUSCLE_GROUPS = ['Pecho', 'Espalda', 'Piernas', 'Hombro', 'Bíceps', 'Tríceps', 'Core', 'Glúteo'];
+  const GROUP_COLORS = {
+    'Pecho': '#e63946',
+    'Espalda': '#2f7cf6',
+    'Piernas': '#f1c40f',
+    'Hombro': '#ff8c42',
+    'Bíceps': '#8e44ad',
+    'Tríceps': '#16a085',
+    'Core': '#e67e22',
+    'Glúteo': '#2ecc71'
+  };
 
-  function saveEntries() {
-    localStorage.setItem('gym-entries', JSON.stringify(entries));
-  }
-  function saveCatalog() {
-    localStorage.setItem('gym-exercise-catalog', JSON.stringify(exerciseCatalog));
-  }
+  function saveEntries() { localStorage.setItem('gym-entries', JSON.stringify(entries)); }
+  function saveCatalog() { localStorage.setItem('gym-exercise-catalog', JSON.stringify(exerciseCatalog)); }
 
   function formatDate(iso) {
     const d = new Date(iso);
     return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
   }
-
   function dateKey(iso) {
     const d = new Date(iso);
     return d.getFullYear() + '-' + (d.getMonth() + 1).toString().padStart(2, '0') + '-' + d.getDate().toString().padStart(2, '0');
+  }
+  function niceDayLabel(key) {
+    const todayKey = dateKey(new Date().toISOString());
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    const yestKey = dateKey(yesterday.toISOString());
+    if (key === todayKey) return 'Hoy';
+    if (key === yestKey) return 'Ayer';
+    const [y, m, d] = key.split('-');
+    return new Date(y, m - 1, d).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+  }
+  function primaryGroupOf(exerciseName) {
+    const groups = exerciseCatalog[exerciseName];
+    return groups && groups.length ? groups[0] : null;
+  }
+  function colorOf(exerciseName) {
+    const g = primaryGroupOf(exerciseName);
+    return g ? GROUP_COLORS[g] : '#c7c7cc';
   }
 
   /* ============ TABS ============ */
@@ -343,54 +418,130 @@
     });
   });
 
-  /* ============ REGISTRO ============ */
-  const exerciseEl = document.getElementById('exercise');
+  /* ============ REGISTRO: selección por grupo muscular ============ */
+  const groupFilterChips = document.getElementById('groupFilterChips');
+  const exercisePickerSection = document.getElementById('exercisePickerSection');
+  const exerciseChips = document.getElementById('exerciseChips');
+  const newExerciseForm = document.getElementById('newExerciseForm');
+  const newExerciseName = document.getElementById('newExerciseName');
+  const newExerciseChips = document.getElementById('newExerciseChips');
+  const confirmNewExercise = document.getElementById('confirmNewExercise');
+  const selectedExerciseBanner = document.getElementById('selectedExerciseBanner');
+  const logForm = document.getElementById('logForm');
   const weightEl = document.getElementById('weight');
   const repsEl = document.getElementById('reps');
   const errorEl = document.getElementById('error');
   const listEl = document.getElementById('list');
   const emptyEl = document.getElementById('empty');
-  const exerciseListEl = document.getElementById('exerciseList');
-  const muscleBox = document.getElementById('muscleBox');
-  const chipRow = document.getElementById('chipRow');
 
-  let selectedGroups = [];
+  let activeFilterGroup = null;   // grupo elegido para filtrar ejercicios
+  let activeExercise = null;      // ejercicio elegido para registrar
+  let newExerciseGroups = [];     // grupos marcados al crear ejercicio nuevo
 
-  function refreshDatalist() {
-    exerciseListEl.innerHTML = Object.keys(exerciseCatalog)
-      .sort((a, b) => a.localeCompare(b))
-      .map(name => `<option value="${name}">`).join('');
-  }
-
-  function renderChips() {
-    chipRow.innerHTML = MUSCLE_GROUPS.map(g =>
-      `<button type="button" class="chip${selectedGroups.includes(g) ? ' selected' : ''}" data-group="${g}">${g}</button>`
-    ).join('');
-    chipRow.querySelectorAll('.chip').forEach(chip => {
+  function renderGroupFilterChips() {
+    groupFilterChips.innerHTML = MUSCLE_GROUPS.map(g => `
+      <button type="button" class="chip${activeFilterGroup === g ? ' selected' : ''}" data-group="${g}">
+        <span class="dot" style="background:${GROUP_COLORS[g]};"></span>${g}
+      </button>
+    `).join('');
+    groupFilterChips.querySelectorAll('.chip').forEach(chip => {
       chip.addEventListener('click', () => {
         const g = chip.dataset.group;
-        if (selectedGroups.includes(g)) {
-          selectedGroups = selectedGroups.filter(x => x !== g);
-        } else {
-          selectedGroups.push(g);
-        }
-        renderChips();
+        activeFilterGroup = activeFilterGroup === g ? null : g;
+        activeExercise = null;
+        newExerciseForm.style.display = 'none';
+        renderGroupFilterChips();
+        renderExerciseChips();
+        renderSelectedBanner();
       });
     });
   }
-  renderChips();
 
-  function checkExerciseInput() {
-    const name = exerciseEl.value.trim();
-    if (name && !exerciseCatalog[name]) {
-      muscleBox.classList.add('visible');
-    } else {
-      muscleBox.classList.remove('visible');
+  function renderExerciseChips() {
+    if (!activeFilterGroup) {
+      exercisePickerSection.style.display = 'none';
+      return;
     }
-  }
-  exerciseEl.addEventListener('input', checkExerciseInput);
-  exerciseEl.addEventListener('change', checkExerciseInput);
+    exercisePickerSection.style.display = 'block';
+    const names = Object.keys(exerciseCatalog)
+      .filter(name => (exerciseCatalog[name] || []).includes(activeFilterGroup))
+      .sort((a, b) => a.localeCompare(b));
 
+    exerciseChips.innerHTML =
+      names.map(name => `<button type="button" class="chip${activeExercise === name ? ' selected' : ''}" data-name="${name}">${name}</button>`).join('') +
+      `<button type="button" class="chip chip-new" id="newExerciseBtn">+ Nuevo</button>`;
+
+    exerciseChips.querySelectorAll('.chip[data-name]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        activeExercise = chip.dataset.name;
+        newExerciseForm.style.display = 'none';
+        renderExerciseChips();
+        renderSelectedBanner();
+      });
+    });
+    document.getElementById('newExerciseBtn').addEventListener('click', () => {
+      activeExercise = null;
+      newExerciseGroups = [activeFilterGroup];
+      newExerciseName.value = '';
+      renderNewExerciseChips();
+      newExerciseForm.style.display = 'block';
+      renderExerciseChips();
+      renderSelectedBanner();
+    });
+  }
+
+  function renderNewExerciseChips() {
+    newExerciseChips.innerHTML = MUSCLE_GROUPS.map(g => `
+      <button type="button" class="chip${newExerciseGroups.includes(g) ? ' selected' : ''}" data-group="${g}">
+        <span class="dot" style="background:${GROUP_COLORS[g]};"></span>${g}
+      </button>
+    `).join('');
+    newExerciseChips.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const g = chip.dataset.group;
+        if (newExerciseGroups.includes(g)) newExerciseGroups = newExerciseGroups.filter(x => x !== g);
+        else newExerciseGroups.push(g);
+        renderNewExerciseChips();
+      });
+    });
+  }
+
+  confirmNewExercise.addEventListener('click', () => {
+    const name = newExerciseName.value.trim();
+    if (!name) { alert('Escribe el nombre del ejercicio.'); return; }
+    if (newExerciseGroups.length === 0) { alert('Marca al menos un grupo muscular.'); return; }
+    exerciseCatalog[name] = [...newExerciseGroups];
+    saveCatalog();
+    activeExercise = name;
+    newExerciseForm.style.display = 'none';
+    renderExerciseChips();
+    renderSelectedBanner();
+  });
+
+  function renderSelectedBanner() {
+    if (!activeExercise) {
+      selectedExerciseBanner.style.display = 'none';
+      logForm.style.display = 'none';
+      return;
+    }
+    selectedExerciseBanner.style.display = 'block';
+    logForm.style.display = 'flex';
+    const groups = exerciseCatalog[activeExercise] || [];
+    const dotsHtml = groups.map(g => `<span class="dot" style="background:${GROUP_COLORS[g]};"></span>`).join('');
+    selectedExerciseBanner.innerHTML = `
+      <div class="selected-exercise">
+        <div class="selected-exercise-name">${dotsHtml}${activeExercise}</div>
+        <button id="clearExercise">Cambiar</button>
+      </div>
+    `;
+    document.getElementById('clearExercise').addEventListener('click', () => {
+      activeExercise = null;
+      renderExerciseChips();
+      renderSelectedBanner();
+    });
+  }
+
+  /* ============ REGISTRO: lista agrupada ============ */
   function renderList() {
     listEl.innerHTML = '';
     if (entries.length === 0) {
@@ -398,20 +549,38 @@
       return;
     }
     emptyEl.style.display = 'none';
-    const sorted = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
-    for (const e of sorted) {
-      const div = document.createElement('div');
-      div.className = 'entry';
-      div.innerHTML = `
-        <div>
-          <div class="entry-name">${e.exercise}</div>
-          <div class="entry-detail">${e.weight} kg x ${e.reps} reps · ${formatDate(e.date)}</div>
-        </div>
-        <button class="del" data-id="${e.id}">&times;</button>
-      `;
-      listEl.appendChild(div);
-    }
-    listEl.querySelectorAll('.del').forEach(btn => {
+
+    // agrupar por día, y dentro por ejercicio
+    const byDay = {};
+    entries.forEach(e => {
+      const key = dateKey(e.date);
+      if (!byDay[key]) byDay[key] = {};
+      if (!byDay[key][e.exercise]) byDay[key][e.exercise] = [];
+      byDay[key][e.exercise].push(e);
+    });
+
+    const sortedDayKeys = Object.keys(byDay).sort((a, b) => new Date(b) - new Date(a));
+
+    let html = '';
+    sortedDayKeys.slice(0, 14).forEach(dayKey => {
+      html += `<h3>${niceDayLabel(dayKey)}</h3>`;
+      const exercisesForDay = byDay[dayKey];
+      Object.keys(exercisesForDay).forEach(exName => {
+        const sets = exercisesForDay[exName].sort((a, b) => new Date(a.date) - new Date(b.date));
+        const color = colorOf(exName);
+        html += `
+          <div class="exercise-card">
+            <div class="exercise-card-header"><span class="dot" style="background:${color};"></span>${exName}</div>
+            <div class="set-chip-row">
+              ${sets.map(s => `<span class="set-chip">${s.weight}kg × ${s.reps}<button data-id="${s.id}">&times;</button></span>`).join('')}
+            </div>
+          </div>
+        `;
+      });
+    });
+    listEl.innerHTML = html;
+
+    listEl.querySelectorAll('.set-chip button').forEach(btn => {
       btn.addEventListener('click', () => {
         entries = entries.filter(e => e.id !== btn.dataset.id);
         saveEntries();
@@ -422,35 +591,19 @@
 
   document.getElementById('addBtn').addEventListener('click', () => {
     errorEl.style.display = 'none';
-    const exercise = exerciseEl.value.trim();
     const weight = parseFloat(weightEl.value);
     const reps = parseInt(repsEl.value, 10);
-    const isNewExercise = exercise && !exerciseCatalog[exercise];
 
-    if (!exercise) { errorEl.textContent = 'Escribe el nombre del ejercicio.'; errorEl.style.display = 'block'; return; }
+    if (!activeExercise) { errorEl.textContent = 'Elige un ejercicio primero.'; errorEl.style.display = 'block'; return; }
     if (isNaN(weight) || weight <= 0) { errorEl.textContent = 'Introduce un peso válido.'; errorEl.style.display = 'block'; return; }
     if (isNaN(reps) || reps <= 0) { errorEl.textContent = 'Introduce las repeticiones.'; errorEl.style.display = 'block'; return; }
-    if (isNewExercise && selectedGroups.length === 0) {
-      errorEl.textContent = 'Marca al menos un grupo muscular para este ejercicio nuevo.';
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    if (isNewExercise) {
-      exerciseCatalog[exercise] = [...selectedGroups];
-      saveCatalog();
-      refreshDatalist();
-    }
 
     entries.push({
       id: Date.now().toString(),
-      exercise, weight: Math.round(weight * 10) / 10, reps,
+      exercise: activeExercise, weight: Math.round(weight * 10) / 10, reps,
       date: new Date().toISOString()
     });
-    exerciseEl.value = ''; weightEl.value = ''; repsEl.value = '';
-    selectedGroups = [];
-    renderChips();
-    muscleBox.classList.remove('visible');
+    weightEl.value = ''; repsEl.value = '';
     saveEntries();
     renderList();
   });
@@ -463,43 +616,27 @@
   const chartEl = document.getElementById('chart');
 
   function getUniqueExercises() {
-    const names = [...new Set(entries.map(e => e.exercise))];
-    return names.sort((a, b) => a.localeCompare(b));
+    return [...new Set(entries.map(e => e.exercise))].sort((a, b) => a.localeCompare(b));
   }
-
   function populateExerciseSelect() {
     const names = getUniqueExercises();
     const current = exerciseSelect.value;
     exerciseSelect.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
     if (names.includes(current)) exerciseSelect.value = current;
   }
-
   exerciseSelect.addEventListener('change', renderProgreso);
 
   function renderProgreso() {
     populateExerciseSelect();
     const names = getUniqueExercises();
-    if (names.length === 0) {
-      progresoEmpty.style.display = 'block';
-      progresoContent.style.display = 'none';
-      return;
-    }
+    if (names.length === 0) { progresoEmpty.style.display = 'block'; progresoContent.style.display = 'none'; return; }
     const selected = exerciseSelect.value || names[0];
-    const data = entries
-      .filter(e => e.exercise === selected)
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    if (data.length < 2) {
-      progresoEmpty.style.display = 'block';
-      progresoContent.style.display = 'none';
-      return;
-    }
+    const data = entries.filter(e => e.exercise === selected).sort((a, b) => new Date(a.date) - new Date(b.date));
+    if (data.length < 2) { progresoEmpty.style.display = 'block'; progresoContent.style.display = 'none'; return; }
     progresoEmpty.style.display = 'none';
     progresoContent.style.display = 'block';
-
     const maxWeight = Math.max(...data.map(d => d.weight));
     prValueEl.textContent = maxWeight + ' kg';
-
     drawChart(data);
   }
 
@@ -509,17 +646,13 @@
     const minW = Math.min(...weights);
     const maxW = Math.max(...weights);
     const range = maxW - minW || 1;
-
     const points = data.map((d, i) => {
       const x = padding + (i / (data.length - 1)) * (w - padding * 2);
       const y = h - padding - ((d.weight - minW) / range) * (h - padding * 2);
       return { x, y, weight: d.weight };
     });
-
     let svg = `<polyline points="${points.map(p => p.x + ',' + p.y).join(' ')}" fill="none" stroke="#1d1d1f" stroke-width="2.5"/>`;
-    points.forEach((p) => {
-      svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="${p.weight === maxW ? '#e63946' : '#1d1d1f'}"/>`;
-    });
+    points.forEach((p) => { svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="${p.weight === maxW ? '#e63946' : '#1d1d1f'}"/>`; });
     chartEl.innerHTML = svg;
   }
 
@@ -528,7 +661,7 @@
 
   function getMondayOfWeek(date) {
     const d = new Date(date);
-    const day = d.getDay(); // 0=domingo..6=sábado
+    const day = d.getDay();
     const diff = day === 0 ? -6 : 1 - day;
     d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
@@ -537,21 +670,13 @@
 
   function renderWeekSummary() {
     const monday = getMondayOfWeek(new Date());
-    const nextMonday = new Date(monday);
-    nextMonday.setDate(monday.getDate() + 7);
+    const nextMonday = new Date(monday); nextMonday.setDate(monday.getDate() + 7);
+    const weekEntries = entries.filter(e => { const d = new Date(e.date); return d >= monday && d < nextMonday; });
 
-    const weekEntries = entries.filter(e => {
-      const d = new Date(e.date);
-      return d >= monday && d < nextMonday;
-    });
-
-    // sets y reps por grupo muscular
     const stats = {};
     MUSCLE_GROUPS.forEach(g => { stats[g] = { sets: 0, reps: 0 }; });
-
     weekEntries.forEach(e => {
-      const groups = exerciseCatalog[e.exercise] || [];
-      groups.forEach(g => {
+      (exerciseCatalog[e.exercise] || []).forEach(g => {
         if (!stats[g]) stats[g] = { sets: 0, reps: 0 };
         stats[g].sets += 1;
         stats[g].reps += e.reps;
@@ -570,9 +695,11 @@
       .sort((a, b) => stats[b].sets - stats[a].sets)
       .map(g => `
         <div class="week-row">
-          <div class="week-label">${g}</div>
-          <div class="week-bar-track"><div class="week-bar-fill" style="width:${(stats[g].sets / maxSets) * 100}%;"></div></div>
-          <div class="week-count">${stats[g].sets} series</div>
+          <div class="week-top-line">
+            <div class="week-label"><span class="dot" style="background:${GROUP_COLORS[g]};"></span>${g}</div>
+            <div class="week-nums">${stats[g].sets} series · ${stats[g].reps} reps</div>
+          </div>
+          <div class="week-bar-track"><div class="week-bar-fill" style="width:${(stats[g].sets / maxSets) * 100}%; background:${GROUP_COLORS[g]};"></div></div>
         </div>
       `).join('');
   }
@@ -591,49 +718,24 @@
   const DOW = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
   const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
-  calPrev.addEventListener('click', () => {
-    calMonth--;
-    if (calMonth < 0) { calMonth = 11; calYear--; }
-    selectedDayKey = null;
-    renderCalendar();
-  });
-  calNext.addEventListener('click', () => {
-    calMonth++;
-    if (calMonth > 11) { calMonth = 0; calYear++; }
-    selectedDayKey = null;
-    renderCalendar();
-  });
+  calPrev.addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } selectedDayKey = null; renderCalendar(); });
+  calNext.addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } selectedDayKey = null; renderCalendar(); });
 
   function renderCalendar() {
     calTitle.textContent = MONTHS[calMonth] + ' ' + calYear;
-
     const byDay = {};
-    entries.forEach(e => {
-      const key = dateKey(e.date);
-      if (!byDay[key]) byDay[key] = [];
-      byDay[key].push(e);
-    });
+    entries.forEach(e => { const key = dateKey(e.date); if (!byDay[key]) byDay[key] = []; byDay[key].push(e); });
 
     calGrid.innerHTML = '';
-    DOW.forEach(d => {
-      const el = document.createElement('div');
-      el.className = 'cal-dow';
-      el.textContent = d;
-      calGrid.appendChild(el);
-    });
+    DOW.forEach(d => { const el = document.createElement('div'); el.className = 'cal-dow'; el.textContent = d; calGrid.appendChild(el); });
 
     const firstOfMonth = new Date(calYear, calMonth, 1);
     let startOffset = firstOfMonth.getDay() - 1;
     if (startOffset < 0) startOffset = 6;
-
     const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
     const todayKey = dateKey(new Date().toISOString());
 
-    for (let i = 0; i < startOffset; i++) {
-      const el = document.createElement('div');
-      el.className = 'cal-day empty-cell';
-      calGrid.appendChild(el);
-    }
+    for (let i = 0; i < startOffset; i++) { const el = document.createElement('div'); el.className = 'cal-day empty-cell'; calGrid.appendChild(el); }
 
     for (let day = 1; day <= daysInMonth; day++) {
       const key = calYear + '-' + (calMonth + 1).toString().padStart(2, '0') + '-' + day.toString().padStart(2, '0');
@@ -643,20 +745,12 @@
       if (key === todayKey) el.classList.add('today');
       if (key === selectedDayKey) el.classList.add('selected');
       el.textContent = day;
-      el.addEventListener('click', () => {
-        if (!byDay[key]) return;
-        selectedDayKey = key;
-        renderCalendar();
-        renderDayDetail(key, byDay[key]);
-      });
+      el.addEventListener('click', () => { if (!byDay[key]) return; selectedDayKey = key; renderCalendar(); renderDayDetail(key, byDay[key]); });
       calGrid.appendChild(el);
     }
 
-    if (selectedDayKey && byDay[selectedDayKey]) {
-      renderDayDetail(selectedDayKey, byDay[selectedDayKey]);
-    } else {
-      dayDetail.innerHTML = '<div class="empty">Toca un día marcado para ver qué entrenaste.</div>';
-    }
+    if (selectedDayKey && byDay[selectedDayKey]) renderDayDetail(selectedDayKey, byDay[selectedDayKey]);
+    else dayDetail.innerHTML = '<div class="empty">Toca un día marcado para ver qué entrenaste.</div>';
   }
 
   function renderDayDetail(key, dayEntries) {
@@ -665,11 +759,9 @@
     let html = `<div class="day-detail-title">${niceDate}</div>`;
     dayEntries.forEach(e => {
       html += `
-        <div class="entry">
-          <div>
-            <div class="entry-name">${e.exercise}</div>
-            <div class="entry-detail">${e.weight} kg x ${e.reps} reps</div>
-          </div>
+        <div class="exercise-card" style="margin-bottom:8px;">
+          <div class="exercise-card-header"><span class="dot" style="background:${colorOf(e.exercise)};"></span>${e.exercise}</div>
+          <div class="set-chip-row"><span class="set-chip">${e.weight}kg × ${e.reps}</span></div>
         </div>
       `;
     });
@@ -692,18 +784,15 @@
     const s = (remaining % 60).toString().padStart(2, '0');
     timerDisplay.textContent = m + ':' + s;
   }
-
   function playBeep() {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      osc.connect(gain); gain.connect(ctx.destination);
       osc.frequency.value = 880;
       gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.4);
+      osc.start(); osc.stop(ctx.currentTime + 0.4);
     } catch (e) {}
     if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
   }
@@ -712,49 +801,30 @@
     btn.addEventListener('click', () => {
       totalSeconds = parseInt(btn.dataset.secs, 10);
       remaining = totalSeconds;
-      clearInterval(timerInterval);
-      running = false;
+      clearInterval(timerInterval); running = false;
       timerStart.textContent = 'Iniciar';
       updateTimerDisplay();
     });
   });
-
   timerStart.addEventListener('click', () => {
-    if (running) {
-      clearInterval(timerInterval);
-      running = false;
-      timerStart.textContent = 'Iniciar';
-      return;
-    }
-    running = true;
-    timerStart.textContent = 'Pausar';
+    if (running) { clearInterval(timerInterval); running = false; timerStart.textContent = 'Iniciar'; return; }
+    running = true; timerStart.textContent = 'Pausar';
     timerInterval = setInterval(() => {
-      remaining--;
-      updateTimerDisplay();
-      if (remaining <= 0) {
-        clearInterval(timerInterval);
-        running = false;
-        timerStart.textContent = 'Iniciar';
-        playBeep();
-      }
+      remaining--; updateTimerDisplay();
+      if (remaining <= 0) { clearInterval(timerInterval); running = false; timerStart.textContent = 'Iniciar'; playBeep(); }
     }, 1000);
   });
-
   timerReset.addEventListener('click', () => {
-    clearInterval(timerInterval);
-    running = false;
-    remaining = totalSeconds;
-    timerStart.textContent = 'Iniciar';
-    updateTimerDisplay();
+    clearInterval(timerInterval); running = false; remaining = totalSeconds;
+    timerStart.textContent = 'Iniciar'; updateTimerDisplay();
   });
-
   updateTimerDisplay();
 
   /* ============ INIT ============ */
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js');
-  }
-  refreshDatalist();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
+  renderGroupFilterChips();
+  renderExerciseChips();
+  renderSelectedBanner();
   renderList();
 </script>
 </body>
